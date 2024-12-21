@@ -122,8 +122,21 @@ void LogParser::insert_log_file(const std::string &file_path)
         std::string line;
         std::getline(file, line); // removed the header
 
+        ////////////////////////////////////////////////////////
         // Count total lines for progress bar
-        int total_lines = 10250;
+        int total_lines = 0;
+        std::ifstream count_file(file_path); // Use a separate file stream for counting lines
+        if (!count_file.is_open())
+        {
+            throw std::runtime_error("Failed to open file for counting lines: " + file_path);
+        }
+
+        std::getline(count_file, line);
+        while (std::getline(count_file, line)) total_lines++;
+
+        count_file.close(); // Close the count_file stream
+        /////////////////////////////////////////////////////////
+
         int current_line = 0;
 
         // Process the lines with a progress bar

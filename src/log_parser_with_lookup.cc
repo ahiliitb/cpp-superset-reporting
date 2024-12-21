@@ -21,7 +21,7 @@ void LogParserWithLookup::set_main_table_schema()
 
         if(this->columnindex.count(log_col.name) != 0)
         {
-            if(log_col.isArray)isArray = false;
+            if(log_col.isArray) isArray = false;
             else datatype = "INTEGER";            
         }
         this->main_table_schema.emplace_back(TableColumn(log_col.name, datatype, log_col.data_format, isArray, log_col.isPrimary));

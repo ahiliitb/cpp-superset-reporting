@@ -1,25 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include <bits/stdc++.h>
-
-class TableColumn
-{
-public:
-    std::string name, datatype, data_format;
-    bool isArray, isPrimary;
-
-    TableColumn(std::string name, std::string datatype, std::string data_format = "NULL", bool isArray = false, bool isPrimary = false)
-    {
-        this->name = name;
-        this->datatype = datatype;
-        this->data_format = data_format;
-        this->isArray = isArray;
-        this->isPrimary = isPrimary;
-    }
-
-};
-
+#include "table_column.h"
 
 class DatabaseConnectionPool
 {

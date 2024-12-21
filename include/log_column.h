@@ -1,3 +1,6 @@
+#ifndef LOG_COLUMN_H
+#define LOG_COLUMN_H
+
 #include<bits/stdc++.h>
 
 class LogColumn
@@ -17,3 +20,5 @@ public:
     }
     ~LogColumn() {}
 };
+
+#endif // LOG_COLUMN_H

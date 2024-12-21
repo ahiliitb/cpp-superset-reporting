@@ -25,19 +25,11 @@
         <column name="cachecode" datatype="TEXT" lookup="true"/>
         <column name="peercode" datatype="TEXT" lookup="true"/>
         <column name="peer" datatype="TEXT"/>
-        <column name="request_host" datatype="TEXT" lookup="true"/>
+        <column name="request_host" datatype="TEXT"/>
         <column name="request_tld" datatype="TEXT" lookup="true"/>
         <column name="referer_host" datatype="TEXT" lookup="true"/>
         <column name="referer_tld" datatype="TEXT" lookup="true"/>
         <column name="range" datatype="TEXT"/>
-        <!-- <column name="time_profiles" datatype="TEXT" array="true"/>
-        <column name="user_groups" datatype="TEXT" array="true"/>
-        <column name="request_profiles" datatype="TEXT" array="true"/>
-        <column name="application_signatures" datatype="TEXT" array="true"/>
-        <column name="categories" datatype="TEXT" array="true"/>
-        <column name="response_profiles" datatype="TEXT" array="true"/>
-        <column name="upload_content_types" datatype="TEXT" array="true"/>
-        <column name="download_content_types" datatype="TEXT" array="true"/> -->
         <column name="time_profiles" datatype="TEXT" array="true" lookup="true"/>
         <column name="user_groups" datatype="TEXT" array="true" lookup="true"/>
         <column name="request_profiles" datatype="TEXT" array="true" lookup="true"/>
