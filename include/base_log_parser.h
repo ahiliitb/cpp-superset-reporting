@@ -6,22 +6,23 @@
 #include <zlib.h> // For handling gzipped files
 #include "utils.h"
 #include "log_column.h"
+#include "config.h"
 
-class LogParser
+class BaseLogParser
 {
 
     public:
-        DatabaseConnectionPool database;
+        DatabaseConnectionPool &database;
         std::vector<LogColumn> log_schema;
         std::string file_type;
         
 
-        LogParser(DatabaseConnectionPool database, std::string file_type = "tsv");
+        BaseLogParser(DatabaseConnectionPool &database, std::string file_type = "tsv");
 
         void load_log_schema(std::string log_type, std::string xml_file_name);
 
         // Declared in derived log parser
-        virtual void insert_log(const std::string &line) = 0;
+        virtual void insert_log(const std::vector<std::string> &line) = 0;
 
         virtual void create_table() = 0;
 

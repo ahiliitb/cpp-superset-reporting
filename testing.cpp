@@ -21,7 +21,7 @@ int main() {
     // t1.join();
     // t2.join();
     string a = "ahil";
-    cout<<a.substr(1, 2);
+    cout<<a.substr(1, 1);
     
 
     return 0;

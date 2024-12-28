@@ -16,7 +16,7 @@
         <column name="username" datatype="TEXT" lookup="true"/>
         <column name="method" datatype="TEXT" lookup="true"/>
         <column name="url" datatype="TEXT"/>
-        <column name="http_referer" datatype="TEXT"/>
+        <column name="http_referer" datatype="TEXT" lookup="true"/>
         <column name="useragent" datatype="TEXT"/>
         <column name="mime" datatype="TEXT" lookup="true"/>
         <column name="filter_name" datatype="TEXT" lookup="true"/>
@@ -38,7 +38,7 @@
         <column name="response_profiles" datatype="TEXT" array="true" lookup="true"/>
         <column name="upload_content_types" datatype="TEXT" array="true" lookup="true"/>
         <column name="download_content_types" datatype="TEXT" array="true" lookup="true"/>
-        <column name="profiles" datatype="TEXT" array="true"/>
+        <column name="profiles" datatype="TEXT" array="true" lookup="true"/>
     </extended>
     <performance type="csv">
         <column name="timestamp" datatype="TIMESTAMP" format="YYYYMMDDHH24MISS"/>

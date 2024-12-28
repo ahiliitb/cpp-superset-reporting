@@ -1,7 +1,11 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
 
 // Function to split a string by a delimiter
 inline std::vector<std::string> split(const std::string &line, char delimiter)
@@ -50,6 +54,44 @@ inline std::string join(const std::vector<std::string> &parts, const std::string
         }
     }
     return joined.str();
+}
+
+// Function to read a JSON file and convert it to a std::unordered_map
+inline std::unordered_map<std::string, std::string> jsonToDict(const std::string &filePath)
+{
+    std::unordered_map<std::string, std::string> result;
+
+    try
+    {
+        // Open the JSON file
+        std::ifstream file(filePath);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Unable to open file: " + filePath);
+        }
+
+        // Parse the JSON file
+        json jsonObj;
+        file >> jsonObj;
+
+        // Check if it's a JSON object
+        if (!jsonObj.is_object())
+        {
+            throw std::invalid_argument("JSON in the file is not an object.");
+        }
+
+        // Iterate through the JSON object
+        for (auto &[key, value] : jsonObj.items())
+        {
+            result[key] = value.is_string() ? value.get<std::string>() : value.dump(); // Serialize non-strings
+        }
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+
+    return result;
 }
 
 #endif // UTILS_H

@@ -1,12 +1,11 @@
 #include "base_log_parser.h"
 
-LogParser::LogParser(DatabaseConnectionPool database, std::string file_type)
-{
-    this->database = database;
-    this->file_type = file_type;
-}
+BaseLogParser::BaseLogParser(DatabaseConnectionPool &database, std::string file_type)
+: database(database),
+  file_type(file_type)
+  {}
 
-void LogParser::load_log_schema(std::string log_type, std::string xml_file_name)
+void BaseLogParser::load_log_schema(std::string log_type, std::string xml_file_name)
 {
     pugi::xml_document doc;
 
@@ -58,7 +57,7 @@ void LogParser::load_log_schema(std::string log_type, std::string xml_file_name)
     }
 }
 
-void LogParser::insert_log_file(const std::string &file_path)
+void BaseLogParser::insert_log_file(const std::string &file_path)
 {
 
     // Determine if the file is gzipped based on the extension
@@ -93,7 +92,7 @@ void LogParser::insert_log_file(const std::string &file_path)
                 while (std::getline(ss, line))
                 {
                     // Your processing function
-                    insert_log(line);
+                    // insert_log(line);
 
                     // Update progress bar
                     ++current_line;
@@ -112,15 +111,7 @@ void LogParser::insert_log_file(const std::string &file_path)
     }
     else
     {
-        // Open regular file
-        std::ifstream file(file_path);
-        if (!file.is_open())
-        {
-            throw std::runtime_error("Failed to open file: " + file_path);
-        }
-
         std::string line;
-        std::getline(file, line); // removed the header
 
         ////////////////////////////////////////////////////////
         // Count total lines for progress bar
@@ -137,13 +128,30 @@ void LogParser::insert_log_file(const std::string &file_path)
         count_file.close(); // Close the count_file stream
         /////////////////////////////////////////////////////////
 
+        // Open regular file
+        std::ifstream file(file_path);
+        if (!file.is_open())
+        {
+            throw std::runtime_error("Failed to open file: " + file_path);
+        }
+
+        std::getline(file, line); // removed the header
+
         int current_line = 0;
 
+        std::vector<std::string> log_lines;
         // Process the lines with a progress bar
         while (std::getline(file, line))
         {
+            if(log_lines.size() != NUM_QUERIES) log_lines.emplace_back(line);
+
             // Your processing function
-            this->insert_log(line);
+            if(log_lines.size() == NUM_QUERIES || current_line == total_lines-1)
+            {
+                this->insert_log(log_lines);
+                log_lines.clear();
+            }
+            
 
             // Update progress bar
             ++current_line;
@@ -156,7 +164,7 @@ void LogParser::insert_log_file(const std::string &file_path)
     }
 }
 
-void LogParser::insert_log_files(const std::vector<std::string> log_file_name_list)
+void BaseLogParser::insert_log_files(const std::vector<std::string> log_file_name_list)
 {
     for (std::string file_name : log_file_name_list)
     {
@@ -164,7 +172,7 @@ void LogParser::insert_log_files(const std::vector<std::string> log_file_name_li
     }
 }
 
-std::vector<std::string> LogParser::parse_log_line(const std::string &log_line)
+std::vector<std::string> BaseLogParser::parse_log_line(const std::string &log_line)
 {
     try
     {
@@ -179,11 +187,14 @@ std::vector<std::string> LogParser::parse_log_line(const std::string &log_line)
             // Process fields: split by ',' if found
             for (std::string &field : fields)
             {
+                // Strip surrounding double quotes if they exist
+                if (field.front() == '"' && field.back() == '"')
+                {
+                    field = field.substr(1, field.length() - 2); // Remove surrounding double quotes
+                }
                 if (field.find(',') != std::string::npos)
                 {
-                    // Split the field by ',' and replace the original field
-                    std::vector<std::string> subfields = split(field, ',');
-                    field = "{" + join(subfields, ", ") + "}";
+                    field = "{" + field + "}";
                 }
             }
         }
@@ -196,7 +207,7 @@ std::vector<std::string> LogParser::parse_log_line(const std::string &log_line)
         {
             throw std::invalid_argument("Log file type '" + file_type + "' not supported.");
         }
-
+        
         return fields;
     }
     catch (const std::exception &e)
@@ -206,7 +217,7 @@ std::vector<std::string> LogParser::parse_log_line(const std::string &log_line)
     }
 }
 
-int LogParser::get_log_schema_length()
+int BaseLogParser::get_log_schema_length()
 {
     return this->log_schema.size();
 }
