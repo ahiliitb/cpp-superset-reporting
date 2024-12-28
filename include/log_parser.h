@@ -7,13 +7,16 @@
 
 class LogParser: public BaseLogParser
 {
-    public:
+    private:
+
         std::string main_table_name;
         std::vector<TableColumn> main_table_schema;
         std::vector<TableColumn> lookuptable_schema;
         std::vector<LogColumn> lookup_columns;
         std::map<std::string, std::map<std::string, int>> lookuptables;
         std::map<std::string, int> columnindex;
+
+    public:
 
         LogParser(DatabaseConnectionPool &database, const std::string main_table, const std::string file_type = "tsv");
 
@@ -45,12 +48,6 @@ class LogParser: public BaseLogParser
         std::vector<std::string> update_log_line(std::vector<std::string> log_line);
 
         void insert_all_log_files(std::vector<std::string> log_lists);
- 
-        void print_table_schema(std::string table_name);
-
-        void print_all_table_schema();
-
-        void print_table_content(std::string table_name, int first_n_line);
 
         long long database_size();
 

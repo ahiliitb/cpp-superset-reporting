@@ -240,6 +240,28 @@ std::map<std::string, std::vector<std::pair<std::string, std::string>>> Database
     return schema;
 }
 
+void DatabaseConnectionPool::print_table_schema(std::string table_name)
+{
+    std::map<std::string, std::vector<std::pair<std::string, std::string>>> schemas = this->fetch_all_table_schema();
+    std::cout<<"Table Name is "<<table_name<<std::endl;
+    std::cout<<"Table Column Size is "<<schemas[table_name].size()<<std::endl;
+    std::cout<<"Columns are: "<<std::endl;
+    for(auto table_col: schemas[table_name])
+    {
+        std::cout<<"==> Column Name: "<<table_col.first<<" | Datatype: "<<table_col.second<<std::endl;
+    }
+}
+
+void DatabaseConnectionPool::print_all_table_schema()
+{
+    std::unordered_set<std::string> table_names = this->fetch_table_names();
+    for(std::string table_name: table_names)
+    {
+        print_table_schema(table_name);
+        std::cout<<"------------------------------"<<std::endl;
+    }
+}
+
 std::unordered_set<std::string> DatabaseConnectionPool::fetch_table_names()
 {
     std::string query = "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE';";

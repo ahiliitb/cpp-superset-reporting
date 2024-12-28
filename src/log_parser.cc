@@ -201,30 +201,3 @@ long long LogParser::database_size()
     return this->database.get_database_size();
 }
 
-void LogParser::print_table_schema(std::string table_name)
-{
-    std::map<std::string, std::vector<std::pair<std::string, std::string>>> schemas = this->database.fetch_all_table_schema();
-    std::cout<<"Table Name is "<<table_name<<std::endl;
-    std::cout<<"Table Column Size is "<<schemas[table_name].size()<<std::endl;
-    std::cout<<"Columns are: "<<std::endl;
-    for(auto table_col: schemas[table_name])
-    {
-        std::cout<<"==> Column Name: "<<table_col.first<<" | Datatype: "<<table_col.second<<std::endl;
-    }
-}
-
-void LogParser::print_all_table_schema()
-{
-    std::unordered_set<std::string> table_names = this->database.fetch_table_names();
-    for(std::string table_name: table_names)
-    {
-        print_table_schema(table_name);
-        std::cout<<"------------------------------"<<std::endl;
-    }
-}
-
-void LogParser::print_table_content(std::string table_name, int first_n_line)
-{
-    this->database.print_table_content(table_name, first_n_line);
-}
-

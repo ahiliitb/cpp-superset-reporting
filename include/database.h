@@ -33,6 +33,10 @@ class DatabaseConnectionPool
 
         std::map<std::string, std::vector<std::pair<std::string, std::string>>> fetch_all_table_schema();
 
+        void print_table_schema(std::string table_name);
+
+        void print_all_table_schema();
+
         std::unordered_set<std::string> fetch_table_names();
 
         void insert_data(std::string table_name, std::vector<TableColumn> table_schema, std::vector<std::string> value_to_store);

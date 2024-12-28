@@ -20,8 +20,8 @@ int main() {
 
     // t1.join();
     // t2.join();
-    string a = "ahil";
-    cout<<a.substr(1, 1);
+    float y = 1.5;
+    int x = (int)(y*2);
     
 
     return 0;
