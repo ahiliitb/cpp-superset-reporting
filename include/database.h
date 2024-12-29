@@ -9,7 +9,7 @@ class DatabaseConnectionPool
 {
     private:
         size_t maxConnections;
-        std::vector<pqxx::connection*> connectionPool; // Raw pointers for connections
+        std::vector<pqxx::connection*> connectionPool;
         std::string connectionString;
         
     public:

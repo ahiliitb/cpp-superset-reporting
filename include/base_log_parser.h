@@ -16,12 +16,10 @@ class BaseLogParser
         std::vector<LogColumn> log_schema;
         std::string file_type;
         
-
         BaseLogParser(DatabaseConnectionPool &database, std::string file_type = "tsv");
 
         void load_log_schema(std::string log_type, std::string xml_file_name);
 
-        // Declared in derived log parser
         virtual void insert_log(const std::vector<std::string> &line) = 0;
 
         virtual void create_table() = 0;

@@ -77,13 +77,13 @@ void DatabaseConnectionPool::releaseConnection(pqxx::connection *conn)
             }
             catch (const std::exception &e)
             {
-                // Log error or handle reconnection failure
+                //  Include Log error when completed
             }
         }
     }
     else
     {
-        delete conn; // Free connection if pool is full
+        delete conn; 
     }
 }
 
@@ -96,7 +96,6 @@ std::vector<std::vector<std::string>> DatabaseConnectionPool::executeCommand(con
     {
         pqxx::work txn(*conn);
 
-        // Prepare the SQL command with placeholders for values
         std::string preparedCommand = sqlCommand;
         for (size_t i = 0; i < values.size(); ++i)
         {
@@ -108,10 +107,8 @@ std::vector<std::vector<std::string>> DatabaseConnectionPool::executeCommand(con
             }
         }
 
-        // Execute the query
         pqxx::result res = txn.exec(preparedCommand);
 
-        // Convert the result set into a vector of vectors
         for (const auto &row : res)
         {
             std::vector<std::string> rowData;
@@ -126,7 +123,7 @@ std::vector<std::vector<std::string>> DatabaseConnectionPool::executeCommand(con
     }
     catch (const std::exception &e)
     {
-        conn->disconnect(); // Rollback by disconnecting on failure
+        conn->disconnect(); 
         releaseConnection(conn);
         throw std::runtime_error("Error executing SQL command: " + std::string(e.what()));
     }
@@ -150,21 +147,18 @@ std::vector<std::vector<std::string>> DatabaseConnectionPool::executeMultipleCom
             std::string sqlCommand = query.first;
             const std::vector<std::string> &values = query.second;
 
-            // Prepare the SQL command with placeholders for values
             for (size_t i = 0; i < values.size(); ++i)
             {
                 std::string placeholder = "$" + std::to_string(i + 1);
                 size_t pos = sqlCommand.find(placeholder);
                 if (pos != std::string::npos)
                 {
-                    sqlCommand.replace(pos, placeholder.length(), values[i]); // Escape value
+                    sqlCommand.replace(pos, placeholder.length(), values[i]); 
                 }
             }
 
-            // Execute the query
             pqxx::result res = txn.exec(sqlCommand);
 
-            // Convert the result set into a vector of vectors (if needed)
             for (const auto &row : res)
             {
                 std::vector<std::string> rowData;
@@ -176,11 +170,11 @@ std::vector<std::vector<std::string>> DatabaseConnectionPool::executeMultipleCom
             }
         }
 
-        txn.commit(); // Commit all queries together
+        txn.commit();
     }
     catch (const std::exception &e)
     {
-        conn->disconnect(); // Rollback by disconnecting on failure
+        conn->disconnect(); 
         releaseConnection(conn);
         throw std::runtime_error("Error executing SQL commands: " + std::string(e.what()));
     }
@@ -286,7 +280,6 @@ void DatabaseConnectionPool::insert_data(std::string table_name, std::vector<Tab
 
     std::string columns = join(column_vec, ", ");
 
-    // Prepare placeholders and formatted values
     std::vector<std::string> placeholder;
     std::vector<std::string> formated_values;
 
@@ -312,7 +305,7 @@ void DatabaseConnectionPool::insert_data(std::string table_name, std::vector<Tab
         else if (tab_col.isArray)
         {
             placeholder.push_back("ARRAY[$" + std::to_string(i + 1) + "]");
-            formated_values.push_back(value); // Assuming 'value' is formatted correctly for an array
+            formated_values.push_back(value);
         }
         else
         {
@@ -324,7 +317,6 @@ void DatabaseConnectionPool::insert_data(std::string table_name, std::vector<Tab
     std::string placeholder_str = join(placeholder, ", ");
     std::string query = "INSERT INTO " + table_name + " (" + columns + ") VALUES (" + placeholder_str + ") ON CONFLICT DO NOTHING";
 
-    // Execute the query with formatted values
     this->executeCommand(query, formated_values);
 }
 
@@ -341,7 +333,6 @@ void DatabaseConnectionPool::insert_multiple_data(std::string table_name, std::v
     std::vector<std::pair<std::string, std::vector<std::string>>> all_queries;
     for (auto value_to_store : values_to_store)
     {
-        // Prepare placeholders and formatted values
         std::vector<std::string> placeholder;
         std::vector<std::string> formated_values;
 
@@ -367,7 +358,7 @@ void DatabaseConnectionPool::insert_multiple_data(std::string table_name, std::v
             else if (tab_col.isArray)
             {
                 placeholder.push_back("ARRAY[$" + std::to_string(i + 1) + "]");
-                formated_values.push_back(value); // Assuming 'value' is formatted correctly for an array
+                formated_values.push_back(value); 
             }
             else
             {
@@ -382,7 +373,6 @@ void DatabaseConnectionPool::insert_multiple_data(std::string table_name, std::v
         all_queries.push_back({query, formated_values});
     }
 
-    // Execute the query with formatted values
     this->executeMultipleCommands(all_queries);
 }
 
@@ -406,14 +396,13 @@ void DatabaseConnectionPool::clear_database(std::string db_name)
 
 std::map<std::string, int> DatabaseConnectionPool::fetchLookupTableAsDict(const std::string &table_name, const std::vector<TableColumn> &schema)
 {
-    // Find the string and integer columns in the schema
     std::string string_column;
     std::string int_column;
 
     for (const auto &column : schema)
     {
         std::string datatype = column.datatype;
-        std::transform(datatype.begin(), datatype.end(), datatype.begin(), ::tolower); // Convert datatype to lowercase
+        std::transform(datatype.begin(), datatype.end(), datatype.begin(), ::tolower); 
 
         if (datatype == "varchar" || datatype == "text" || datatype == "char")
         {
@@ -424,7 +413,6 @@ std::map<std::string, int> DatabaseConnectionPool::fetchLookupTableAsDict(const 
             int_column = column.name;
         }
 
-        // Break the loop if both columns are identified
         if (!string_column.empty() && !int_column.empty())
         {
             break;
@@ -436,13 +424,10 @@ std::map<std::string, int> DatabaseConnectionPool::fetchLookupTableAsDict(const 
         throw std::invalid_argument("Schema must contain one string column and one integer column.");
     }
 
-    // SQL query to fetch data from the table
     std::string query = "SELECT " + string_column + ", " + int_column + " FROM " + table_name + ";";
 
-    // Execute the query and fetch results
     auto results = executeCommand(query);
 
-    // Convert the results into a dictionary (unordered_map in C++)
     std::map<std::string, int> lookup_dict;
     for (const auto &row : results)
     {
@@ -450,9 +435,8 @@ std::map<std::string, int> DatabaseConnectionPool::fetchLookupTableAsDict(const 
         {
             throw std::runtime_error("Row contains insufficient data.");
         }
-        // Convert the string key and integer value
         std::string key = row[0];
-        int value = std::stoi(row[1]); // Convert string to integer
+        int value = std::stoi(row[1]); 
         lookup_dict[key] = value;
     }
 
@@ -466,7 +450,6 @@ std::vector<std::unordered_map<std::string, std::string>> DatabaseConnectionPool
 
     try
     {
-        // Query to fetch column names
         std::string columnQuery = R"(
             SELECT column_name
             FROM information_schema.columns
@@ -477,17 +460,14 @@ std::vector<std::unordered_map<std::string, std::string>> DatabaseConnectionPool
 
         std::vector<std::vector<std::string>> columnResult = this->executeCommand(columnQuery);
 
-        // Store column names
         for (const auto &row : columnResult)
         {
             columnNames.push_back(row[0].c_str());
         }
 
-        // Query to fetch all rows
         std::string fetchQuery = "SELECT * FROM " + tableName + ";";
         auto rowResult = executeCommand(fetchQuery);
 
-        // Convert rows to a list of dictionaries
         for (const auto &row : rowResult)
         {
             std::unordered_map<std::string, std::string> rowData;
@@ -534,7 +514,7 @@ long long DatabaseConnectionPool::get_database_size()
     if (!rowResult.empty() && !rowResult[0].empty())
     {
         std::string databaseSizeStr = rowResult[0][0];
-        databaseSize = std::stoll(databaseSizeStr); // Convert to long long
+        databaseSize = std::stoll(databaseSizeStr); 
     }
     return databaseSize;
 }

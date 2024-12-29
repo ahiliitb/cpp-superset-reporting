@@ -34,7 +34,6 @@ void LogParser::set_lookup_table_schema()
 }
 
 
-// Declared in derived log parser
 void LogParser::insert_log(const std::vector<std::string> &lines)
 {
     std::vector<std::vector<std::string>> updated_logs;
@@ -167,7 +166,6 @@ std::vector<std::string> LogParser::update_log_line(std::vector<std::string> log
         {
             if(col_index > 0)
             {
-                // just for testing i am pushing it as string, idealy it should be int
                 log_line[abs(col_index)-1] = std::to_string(this->update_string_column(log_line[abs(col_index)-1], lookuptable_name));
             }
             else if(col_index < 0)

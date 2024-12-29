@@ -1,2 +1,7 @@
 thirdparty/
 awscliv2.zip
+storage/
+.vscode/
+a.out
+log_parser
+testing.cpp

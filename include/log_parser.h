@@ -26,7 +26,6 @@ class LogParser: public BaseLogParser
 
         void set_lookup_table_schema();
 
-        // Declared in derived log parser
         void insert_log(const std::vector<std::string> &lines);
 
         void initialise_lookup();

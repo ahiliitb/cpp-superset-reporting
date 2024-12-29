@@ -25,7 +25,7 @@ inline std::vector<std::string> split(const std::string &line, char delimiter)
 // Function to display a progress bar
 inline void print_progress_bar(float progress)
 {
-    int bar_width = 50; // Width of the progress bar
+    int bar_width = 50; 
     std::cout << "[";
     int pos = bar_width * progress;
     for (int i = 0; i < bar_width; ++i)
@@ -63,27 +63,23 @@ inline std::unordered_map<std::string, std::string> jsonToDict(const std::string
 
     try
     {
-        // Open the JSON file
         std::ifstream file(filePath);
         if (!file.is_open())
         {
             throw std::runtime_error("Unable to open file: " + filePath);
         }
 
-        // Parse the JSON file
         json jsonObj;
         file >> jsonObj;
 
-        // Check if it's a JSON object
         if (!jsonObj.is_object())
         {
             throw std::invalid_argument("JSON in the file is not an object.");
         }
 
-        // Iterate through the JSON object
         for (auto &[key, value] : jsonObj.items())
         {
-            result[key] = value.is_string() ? value.get<std::string>() : value.dump(); // Serialize non-strings
+            result[key] = value.is_string() ? value.get<std::string>() : value.dump(); 
         }
     }
     catch (const std::exception &e)
