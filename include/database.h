@@ -11,6 +11,7 @@ class DatabaseConnectionPool
         size_t maxConnections;
         std::vector<pqxx::connection*> connectionPool;
         std::string connectionString;
+        std::string dbtype;
         
     public:
 
@@ -28,6 +29,12 @@ class DatabaseConnectionPool
         std::vector<std::vector<std::string>> executeCommand(const std::string &sqlCommand, const std::vector<std::string> &values = {});
 
         std::vector<std::vector<std::string>> executeMultipleCommands(const std::vector<std::pair<std::string, std::vector<std::string>>> &queries);
+
+        void create_postgres_table(std::string table_name, std::vector<TableColumn> table_schema);
+
+        std::string get_timestamp_column(std::vector<TableColumn> table_schema);
+
+        void create_timescaledb_table(std::string table_name, std::vector<TableColumn> table_schema);
 
         void create_table(std::string table_name, std::vector<TableColumn> table_schema);
 

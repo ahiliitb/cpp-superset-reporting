@@ -57,7 +57,7 @@ void LogParser::initialise_lookup()
 void LogParser::initialise_schemas(std::string log_type, std::string xml_file_name)
 {
     this->load_log_schema(log_type, xml_file_name);
-    if(LOOKUP) this->initialise_lookup();
+    if(CONFIG::LOOKUP) this->initialise_lookup();
     this->set_main_table_schema();
 }
 
@@ -105,7 +105,7 @@ void LogParser::initialise_lookuptables()
     for(LogColumn log_col: this->lookup_columns)
     {
         std::string lookuptable_name;
-        if(SINGLE_LOOKUP_TABLE) lookuptable_name = "lookuptable";
+        if(CONFIG::SINGLE_LOOKUP_TABLE) lookuptable_name = "lookuptable";
         else lookuptable_name = log_col.name;
         this->lookuptables[lookuptable_name] = initialise_single_lookuptable(lookuptable_name);
     }
@@ -138,14 +138,14 @@ std::string LogParser::update_array_column(std::string log_one_col_val, std::str
         return value;
     }
     std::string comma_sep = log_one_col_val.substr(1, log_one_col_val.size()-2);   
-    std::vector<std::string> split_to_vector = split(comma_sep, ',');
+    std::vector<std::string> split_to_vector = UTILS::split(comma_sep, ',');
 
     std::vector<std::string> lookuptable_value;
     for(std::string arrayvalue: split_to_vector)
     {
         lookuptable_value.push_back(std::to_string(this->update_string_column(arrayvalue, lookuptable_name)));
     }
-    std::string value = join(lookuptable_value, ",");
+    std::string value = UTILS::join(lookuptable_value, ",");
 
     return "{" + value + "}";
 }
@@ -159,7 +159,7 @@ std::vector<std::string> LogParser::update_log_line(std::vector<std::string> log
         int col_index = iter.second;
 
         std::string lookuptable_name;
-        if(SINGLE_LOOKUP_TABLE) lookuptable_name = "lookuptable";
+        if(CONFIG::SINGLE_LOOKUP_TABLE) lookuptable_name = "lookuptable";
         else lookuptable_name = log_col_name;
 
         if (log_line.size() == this->log_schema.size())

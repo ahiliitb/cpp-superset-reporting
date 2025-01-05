@@ -3,8 +3,14 @@
 
 #include<bits/stdc++.h>
 
-inline size_t NUM_QUERIES = 500;
-inline bool LOOKUP = true;
-inline bool SINGLE_LOOKUP_TABLE = false;
+namespace CONFIG
+{
+    
+    inline size_t NUM_QUERIES = 500;
+    inline bool LOOKUP = true;
+    inline bool SINGLE_LOOKUP_TABLE = false;
+    inline std::string LOG_STRUCTURE = "log_structure.xml";
+
+}
 
 #endif // CONFIG_H

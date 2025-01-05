@@ -14,7 +14,9 @@ DatabaseConnectionPool::DatabaseConnectionPool(const std::string &username,
                                                const std::string &port,
                                                const std::string &dbname,
                                                const std::string &dbtype,
-                                               size_t maxConns) : maxConnections(maxConns)
+                                               size_t maxConns) 
+: maxConnections(maxConns),
+  dbtype(dbtype)
 {
     connectionString = "dbname=" + dbname +
                        " user=" + username +
@@ -201,7 +203,7 @@ DatabaseConnectionPool::~DatabaseConnectionPool()
     closeConnections();
 }
 
-void DatabaseConnectionPool::create_table(std::string table_name, std::vector<TableColumn> table_schema)
+void DatabaseConnectionPool::create_postgres_table(std::string table_name, std::vector<TableColumn> table_schema)
 {
     std::vector<std::string> column_vec;
     for (TableColumn table_col : table_schema)
@@ -209,10 +211,45 @@ void DatabaseConnectionPool::create_table(std::string table_name, std::vector<Ta
         column_vec.emplace_back(table_col.string_repr());
     }
 
-    std::string columns = join(column_vec, ", ");
+    std::string columns = UTILS::join(column_vec, ", ");
 
     std::string query = "CREATE TABLE " + table_name + " (" + columns + ");";
     this->executeCommand(query);
+}
+
+std::string DatabaseConnectionPool::get_timestamp_column(std::vector<TableColumn> table_schema)
+{
+    for(auto col: table_schema)
+    {
+        if(col.datatype == "TIMESTAMP") return col.name;
+    }
+    return "None";
+}
+
+void DatabaseConnectionPool::create_timescaledb_table(std::string table_name, std::vector<TableColumn> table_schema)
+{
+    std::string timestamp_col = get_timestamp_column(table_schema);
+
+    std::vector<std::string> column_vec;
+    for (TableColumn table_col : table_schema)
+    {
+        column_vec.emplace_back(table_col.string_repr());
+    }
+
+    std::string columns = UTILS::join(column_vec, ", ");
+
+    std::string query = "CREATE TABLE " + table_name + " (" + columns + ");";
+    this->executeCommand(query);
+
+    std::string hypertable_query = "SELECT create_hypertable('" + table_name + "', '" + timestamp_col + "');";
+    if(timestamp_col != "None") this->executeCommand(hypertable_query);
+
+}
+
+void DatabaseConnectionPool::create_table(std::string table_name, std::vector<TableColumn> table_schema)
+{
+    if(this->dbtype == "postgresql") this->create_postgres_table(table_name, table_schema);
+    else if(this->dbtype == "timescaledb") this->create_timescaledb_table(table_name, table_schema);
 }
 
 std::map<std::string, std::vector<std::pair<std::string, std::string>>> DatabaseConnectionPool::fetch_all_table_schema()
@@ -278,7 +315,7 @@ void DatabaseConnectionPool::insert_data(std::string table_name, std::vector<Tab
         column_vec.emplace_back(table_col.name);
     }
 
-    std::string columns = join(column_vec, ", ");
+    std::string columns = UTILS::join(column_vec, ", ");
 
     std::vector<std::string> placeholder;
     std::vector<std::string> formated_values;
@@ -314,7 +351,7 @@ void DatabaseConnectionPool::insert_data(std::string table_name, std::vector<Tab
         }
     }
 
-    std::string placeholder_str = join(placeholder, ", ");
+    std::string placeholder_str = UTILS::join(placeholder, ", ");
     std::string query = "INSERT INTO " + table_name + " (" + columns + ") VALUES (" + placeholder_str + ") ON CONFLICT DO NOTHING";
 
     this->executeCommand(query, formated_values);
@@ -328,7 +365,7 @@ void DatabaseConnectionPool::insert_multiple_data(std::string table_name, std::v
         column_vec.emplace_back(table_col.name);
     }
 
-    std::string columns = join(column_vec, ", ");
+    std::string columns = UTILS::join(column_vec, ", ");
 
     std::vector<std::pair<std::string, std::vector<std::string>>> all_queries;
     for (auto value_to_store : values_to_store)
@@ -367,7 +404,7 @@ void DatabaseConnectionPool::insert_multiple_data(std::string table_name, std::v
             }
         }
 
-        std::string placeholder_str = join(placeholder, ", ");
+        std::string placeholder_str = UTILS::join(placeholder, ", ");
         std::string query = "INSERT INTO " + table_name + " (" + columns + ") VALUES (" + placeholder_str + ") ON CONFLICT DO NOTHING";
 
         all_queries.push_back({query, formated_values});

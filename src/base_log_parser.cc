@@ -84,7 +84,7 @@ void BaseLogParser::insert_log_file(const std::string &file_path)
                     // insert_log(line);
 
                     ++current_line;
-                    print_progress_bar(static_cast<float>(current_line) / total_lines);
+                    UTILS::print_progress_bar(static_cast<float>(current_line) / total_lines);
                 }
 
                 std::cout << std::endl
@@ -127,9 +127,9 @@ void BaseLogParser::insert_log_file(const std::string &file_path)
 
         while (std::getline(file, line))
         {
-            if(log_lines.size() != NUM_QUERIES) log_lines.emplace_back(line);
+            if(log_lines.size() != CONFIG::NUM_QUERIES) log_lines.emplace_back(line);
 
-            if(log_lines.size() == NUM_QUERIES || current_line == total_lines-1)
+            if(log_lines.size() == CONFIG::NUM_QUERIES || current_line == total_lines-1)
             {
                 this->insert_log(log_lines);
                 log_lines.clear();
@@ -137,7 +137,7 @@ void BaseLogParser::insert_log_file(const std::string &file_path)
             
 
             ++current_line;
-            print_progress_bar(static_cast<float>(current_line) / total_lines);
+            UTILS::print_progress_bar(static_cast<float>(current_line) / total_lines);
         }
 
         std::cout << std::endl
@@ -163,7 +163,7 @@ std::vector<std::string> BaseLogParser::parse_log_line(const std::string &log_li
 
         if (file_type == "tsv")
         {
-            fields = split(log_line, '\t');
+            fields = UTILS::split(log_line, '\t');
 
             for (std::string &field : fields)
             {
@@ -179,7 +179,7 @@ std::vector<std::string> BaseLogParser::parse_log_line(const std::string &log_li
         }
         else if (file_type == "csv")
         {
-            fields = split(log_line, ',');
+            fields = UTILS::split(log_line, ',');
         }
         else
         {
