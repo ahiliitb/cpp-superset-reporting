@@ -17,8 +17,10 @@ public:
 
     void load_database()
     {
+        std::unordered_map<std::string, std::string> credentials = UTILS::jsonToDict(CONFIG::CONFIG_FILE_PATH);
+
         // "postgresql" or "timescaledb" ==> database options
-        database = new DatabaseConnectionPool("admin", "safesquid", "127.0.0.1", "5432", "safesquid_logs", "timescaledb", 1);
+        this->database = new DatabaseConnectionPool(credentials["username"], credentials["password"], credentials["host"], credentials["port"], credentials["dbname"], "timescaledb", stoi(credentials["maxconns"]));
     }
 
     void load_parser(std::string log_type)

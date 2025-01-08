@@ -1,0 +1,1 @@
+/usr/bin/c++  -g CMakeFiles/log_parser.dir/src/main.cc.o CMakeFiles/log_parser.dir/src/log_parser.cc.o CMakeFiles/log_parser.dir/src/base_log_parser.cc.o CMakeFiles/log_parser.dir/src/database.cc.o "CMakeFiles/log_parser.dir/thirdparty/pugixml-1.14/src/pugixml.cpp.o" -o log_parser  -lpqxx -lpq -lz
